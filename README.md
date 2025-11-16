@@ -7,7 +7,6 @@ Aplicación de gestión de personas desarrollada con arquitectura hexagonal (Cle
 - [Requisitos Previos](#requisitos-previos)
 - [Instalación](#instalación)
   - [Instalación con Docker (Recomendado)](#instalación-con-docker-recomendado)
-  - [Instalación Manual](#instalación-manual)
 - [Configuración](#configuración)
 - [Despliegue](#despliegue)
 - [Documentación de API](#documentación-de-api)
@@ -76,50 +75,6 @@ Deberías ver tres servicios en estado "Up":
 docker-compose logs -f personapp-rest
 ```
 
-### Instalación Manual
-
-Si prefieres ejecutar la aplicación sin Docker, sigue estos pasos:
-
-#### 1. Clonar el Repositorio
-
-```bash
-git clone https://github.com/andres-sanchez-m/personapp-hexa-spring-boot.git
-cd personapp-hexa-spring-boot
-```
-
-#### 2. Instalar y Configurar MariaDB
-
-- Instala MariaDB en tu sistema
-- Configúrala para que escuche en el puerto **3307**
-- Crea la base de datos `persona_db` y el usuario `persona_db` con contraseña `persona_db`
-- Ejecuta los scripts de inicialización ubicados en `docker/init/mariadb/`:
-  - `01-init.sql` - Estructura de la base de datos
-  - `02-data.sql` - Datos iniciales
-
-#### 3. Instalar y Configurar MongoDB
-
-- Instala MongoDB en tu sistema
-- Configúralo para que escuche en el puerto **27017**
-- Crea la base de datos `persona_db` con usuario `persona_db` y contraseña `persona_db`
-- Ejecuta los scripts de inicialización ubicados en `docker/init/mongodb/`:
-  - `01-init-user.js` - Configuración de usuarios
-  - `02-init-data.js` - Datos iniciales
-
-#### 4. Compilar el Proyecto
-
-```bash
-mvn clean install
-```
-
-#### 5. Ejecutar la Aplicación
-
-```bash
-cd rest-input-adapter
-mvn spring-boot:run
-```
-
-La aplicación estará disponible en `http://localhost:3000`
-
 ## Configuración
 
 ### Variables de Entorno (Docker)
@@ -134,15 +89,6 @@ Cuando usas Docker Compose, las siguientes variables están configuradas automá
 - `SPRING_DATA_MONGODB_DATABASE=persona_db`
 - `SPRING_DATA_MONGODB_USERNAME=persona_db`
 - `SPRING_DATA_MONGODB_PASSWORD=persona_db`
-
-### Configuración Local (Sin Docker)
-
-Si ejecutas la aplicación localmente, las variables por defecto en `application.properties` son:
-
-- MariaDB: `localhost:3307`
-- MongoDB: `localhost:27017`
-
-Puedes sobrescribir estas configuraciones usando variables de entorno o modificando `rest-input-adapter/src/main/resources/application.properties`.
 
 ## Despliegue
 
@@ -166,12 +112,6 @@ docker-compose down -v
 docker-compose build personapp-rest
 docker-compose up -d
 ```
-
-### Despliegue Manual
-
-1. Compila el proyecto: `mvn clean package`
-2. Encuentra el JAR en `rest-input-adapter/target/rest-input-adapter-*.jar`
-3. Ejecuta: `java -jar rest-input-adapter/target/rest-input-adapter-*.jar`
 
 ## Documentación de API
 
@@ -215,87 +155,62 @@ La mayoría de los endpoints aceptan un parámetro `{database}` que puede ser:
 - `MARIA` - Para usar MariaDB
 - `MONGO` - Para usar MongoDB
 
-### Endpoints de Persona
+### Checklist de Pruebas en Swagger UI
 
-#### 1. Obtener todas las personas
+Accede a la interfaz de Swagger UI en `http://localhost:3000/swagger-ui.html` para realizar las siguientes pruebas:
 
-```http
-GET /api/v1/persona/{database}
-```
+#### 1. Persona
 
-**Ejemplo de solicitud:**
-```bash
-curl -X GET http://localhost:3000/api/v1/persona/MARIA
-```
+- [ ] POST - Crear persona
+- [ ] GET - Obtener persona por ID (funciona)
+- [ ] GET - Listar todas las personas (GET /api/v1/persona/MARIA)
+- [ ] GET - Obtener persona que NO existe (debería devolver mensaje de error, no 500)
+- [ ] PUT - Actualizar persona existente
+- [ ] DELETE - Eliminar persona
 
-**Respuesta de ejemplo:**
-```json
-[
-  {
-    "dni": "1234567890",
-    "firstName": "Juan",
-    "lastName": "Pérez",
-    "age": "30",
-    "sex": "M",
-    "database": "MARIA",
-    "status": "success"
-  }
-]
-```
+#### 2. Teléfono
 
-#### 2. Crear una nueva persona
+- [ ] POST - Crear teléfono
+- [ ] GET - Listar todos los teléfonos (GET /api/v1/telefono/MARIA)
+- [ ] GET - Obtener teléfono por número (GET /api/v1/telefono/MARIA/3001234567)
+- [ ] PUT - Actualizar teléfono
+- [ ] DELETE - Eliminar teléfono
 
-```http
-POST /api/v1/persona
-Content-Type: application/json
-```
+#### 3. Profesión
 
-**Ejemplo de solicitud:**
-```bash
-curl -X POST http://localhost:3000/api/v1/persona \
-  -H "Content-Type: application/json" \
-  -d '{
-    "dni": "9876543210",
-    "firstName": "María",
-    "lastName": "García",
-    "age": "25",
-    "sex": "F",
-    "database": "MARIA"
-  }'
-```
+- [ ] POST - Crear profesión
+- [ ] GET - Listar todas las profesiones (GET /api/v1/profesion/MARIA)
+- [ ] GET - Obtener profesión por ID (GET /api/v1/profesion/MARIA/1)
+- [ ] PUT - Actualizar profesión
+- [ ] DELETE - Eliminar profesión
 
-**Cuerpo de la solicitud (JSON):**
-```json
-{
-  "dni": "9876543210",
-  "firstName": "María",
-  "lastName": "García",
-  "age": "25",
-  "sex": "M",
-  "database": "MARIA"
-}
-```
+#### 4. Estudios
 
-**Respuesta de ejemplo:**
-```json
-{
-  "dni": "9876543210",
-  "firstName": "María",
-  "lastName": "García",
-  "age": "25",
-  "sex": "F",
-  "database": "MARIA",
-  "status": "created"
-}
-```
+- [ ] POST - Crear estudios (antes daba error 500, probar de nuevo)
+- [ ] GET - Listar todos los estudios (GET /api/v1/estudios/MARIA)
+- [ ] GET - Obtener estudios por persona y profesión (GET /api/v1/estudios/MARIA/1234567890/1)
+- [ ] PUT - Actualizar estudios
+- [ ] DELETE - Eliminar estudios
 
-**Campos del Request:**
-- `dni` (String, requerido): Documento Nacional de Identidad
-- `firstName` (String, requerido): Nombre
-- `lastName` (String, requerido): Apellido
-- `age` (String, requerido): Edad
-- `sex` (String, requerido): Sexo (M o F)
-- `database` (String, requerido): Base de datos a usar (MARIA o MONGO)
+#### 5. Casos especiales
+
+- [ ] GET de persona inexistente (debería devolver error, no 500)
+- [ ] POST de estudios con persona/profesión inexistentes (debería devolver error)
+- [ ] Probar con base de datos MONGO (si aplica)
+
+### Orden sugerido de pruebas
+
+1. GET - Listar todas las personas (verificar que aparece la que creaste)
+2. GET - Obtener persona que NO existe (ej: ID 9999999999) - debería devolver mensaje de error
+3. PUT - Actualizar la persona existente (cambiar nombre, edad, etc.)
+4. GET - Listar teléfonos (verificar que aparece el que creaste)
+5. GET - Listar profesiones (verificar que aparece la que creaste)
+6. POST - Crear estudios de nuevo (verificar que ya no da error 500)
+7. GET - Listar estudios (verificar que aparece el que creaste)
+8. DELETE - Eliminar estudios
+9. DELETE - Eliminar teléfono
+10. DELETE - Eliminar profesión
+11. DELETE - Eliminar persona
 
 ## Uso de Docker Compose
 
@@ -404,29 +319,19 @@ http://localhost:3000/swagger-ui.html
 - Debes configurar **Lombok** en tu IDE para desarrollo
 - Puedes hacer Fork de este repo, no editar este repositorio directamente
 
-## Solución de Problemas
-
-### La aplicación no se conecta a las bases de datos
-
-- Verifica que los contenedores de MariaDB y MongoDB estén corriendo: `docker-compose ps`
-- Revisa los logs: `docker-compose logs mariadb` y `docker-compose logs mongodb`
-- Asegúrate de que los healthchecks pasen antes de que la app intente conectarse
-
-### Puerto 3000 ya está en uso
-
-- Cambia el puerto en `docker-compose.yml` y `application.properties`
-- O detén el servicio que está usando el puerto 3000
-
-### Los datos no persisten después de reiniciar
-
-- Verifica que los volúmenes de Docker estén configurados correctamente
-- No uses `docker-compose down -v` si quieres mantener los datos
-
-## Licencia
-
-Este proyecto está bajo la Licencia Apache 2.0. Ver el archivo `LICENSE` para más detalles.
-
 ## Autores
 
+Repositorio original: https://github.com/andres-sanchez-m/personapp-hexa-spring-boot
 - **Andres Sanchez** - asanchez-m@javeriana.edu.co
+- Pontificia Universidad Javeriana
+
+Autores del fork:
+
+- **Luis Felipe Gutiérrez** - gutierrez-lfelipe@javeriana.edu.co
+- Pontificia Universidad Javeriana
+
+- **Daniel Perez** - perezpdaniel@javeriana.edu.co
+- Pontificia Universidad Javeriana
+
+- **Maria Paula Rodríguez** - mpaularodriguezm@javeriana.edu.co
 - Pontificia Universidad Javeriana
