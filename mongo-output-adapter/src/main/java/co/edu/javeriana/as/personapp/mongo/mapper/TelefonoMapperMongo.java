@@ -42,6 +42,14 @@ public class TelefonoMapperMongo {
 	}
 
 	private @NonNull Person validateOwner(PersonaDocument duenio) {
-		return duenio != null ? personaMapperMongo.fromAdapterToDomain(duenio) : new Person();
+		// Solo crear una referencia mínima con el ID para evitar referencias circulares
+		// NO mapear la persona completa porque causaría un ciclo infinito
+		if (duenio != null && duenio.getId() != null) {
+			Person person = new Person();
+			person.setIdentification(duenio.getId());
+			// No establecer otros campos para evitar el ciclo infinito
+			return person;
+		}
+		return new Person();
 	}
 }

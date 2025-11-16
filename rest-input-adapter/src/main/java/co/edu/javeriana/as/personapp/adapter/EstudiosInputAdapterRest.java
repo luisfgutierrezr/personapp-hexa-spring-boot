@@ -126,6 +126,12 @@ public class EstudiosInputAdapterRest {
 		} catch (NumberFormatException e) {
 			log.warn(e.getMessage());
 			return new EstudiosResponse("", "", "", "", request.getDatabase(), "ERROR: ID inválido");
+		} catch (IllegalArgumentException e) {
+			log.warn(e.getMessage());
+			return new EstudiosResponse("", "", "", "", request.getDatabase(), "ERROR: " + e.getMessage());
+		} catch (Exception e) {
+			log.error("Error inesperado al crear estudios", e);
+			return new EstudiosResponse("", "", "", "", request.getDatabase(), "ERROR: " + e.getMessage());
 		}
 	}
 

@@ -42,6 +42,14 @@ public class TelefonoMapperMaria {
 	}
 
 	private @NonNull Person validateOwner(PersonaEntity duenio) {
-		return duenio != null ? personaMapperMaria.fromAdapterToDomain(duenio) : new Person();
+		// Solo crear una referencia mínima con el ID para evitar referencias circulares
+		// NO mapear la persona completa porque causaría un ciclo infinito
+		if (duenio != null && duenio.getCc() != null) {
+			Person person = new Person();
+			person.setIdentification(duenio.getCc());
+			// No establecer otros campos para evitar el ciclo infinito
+			return person;
+		}
+		return new Person();
 	}
 }

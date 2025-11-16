@@ -14,7 +14,6 @@ import co.edu.javeriana.as.personapp.common.annotations.Adapter;
 import co.edu.javeriana.as.personapp.common.exceptions.InvalidOptionException;
 import co.edu.javeriana.as.personapp.common.exceptions.NoExistException;
 import co.edu.javeriana.as.personapp.common.setup.DatabaseOption;
-import co.edu.javeriana.as.personapp.domain.Gender;
 import co.edu.javeriana.as.personapp.domain.Person;
 import co.edu.javeriana.as.personapp.mapper.PersonaMapperRest;
 import co.edu.javeriana.as.personapp.model.request.PersonaRequest;
@@ -82,19 +81,27 @@ public class PersonaInputAdapterRest {
 	}
 
 	public PersonaResponse obtenerPersonaPorId(String database, Integer id) {
+		log.info("obtenerPersonaPorId - Iniciando búsqueda de persona con ID: {} en base de datos: {}", id, database);
 		try {
-			setPersonOutputPortInjection(database);
-			Person person = personInputPort.findOne(id);
 			String db = setPersonOutputPortInjection(database);
+			log.info("obtenerPersonaPorId - Base de datos configurada: {}", db);
+			Person person = personInputPort.findOne(id);
+			log.info("obtenerPersonaPorId - Persona encontrada: {}", person != null ? person.getIdentification() : "null");
 			return db.equalsIgnoreCase(DatabaseOption.MARIA.toString()) 
 				? personaMapperRest.fromDomainToAdapterRestMaria(person)
 				: personaMapperRest.fromDomainToAdapterRestMongo(person);
-		} catch (InvalidOptionException e) {
-			log.warn(e.getMessage());
-			return new PersonaResponse("", "", "", "", "", "", "ERROR: " + e.getMessage());
 		} catch (NoExistException e) {
-			log.warn(e.getMessage());
-			return new PersonaResponse("", "", "", "", "", "", "ERROR: " + e.getMessage());
+			log.warn("obtenerPersonaPorId - Persona no encontrada: {}", e.getMessage());
+			return new PersonaResponse("", "", "", "", "", database, "ERROR: " + e.getMessage());
+		} catch (InvalidOptionException e) {
+			log.warn("obtenerPersonaPorId - Opción de base de datos inválida: {}", e.getMessage());
+			return new PersonaResponse("", "", "", "", "", database, "ERROR: " + e.getMessage());
+		} catch (IllegalArgumentException e) {
+			log.warn("obtenerPersonaPorId - Argumento inválido: {}", e.getMessage());
+			return new PersonaResponse("", "", "", "", "", database, "ERROR: " + e.getMessage());
+		} catch (Exception e) {
+			log.error("obtenerPersonaPorId - Error inesperado al obtener persona con ID: {}", id, e);
+			return new PersonaResponse("", "", "", "", "", database, "ERROR: " + e.getMessage());
 		}
 	}
 
