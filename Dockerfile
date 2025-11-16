@@ -1,6 +1,6 @@
 # Multi-stage build for Spring Boot application
 # Stage 1: Build stage
-FROM maven:3.8.6-openjdk-11 AS build
+FROM maven:3.9-eclipse-temurin-11 AS build
 WORKDIR /app
 
 # Copy pom files
@@ -17,7 +17,7 @@ COPY . .
 RUN mvn clean package -DskipTests -pl rest-input-adapter -am
 
 # Stage 2: Runtime stage
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11-jre-alpine
 WORKDIR /app
 
 # Create logs directory
