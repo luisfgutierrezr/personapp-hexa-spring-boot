@@ -1,0 +1,46 @@
+# Build outputs
+target/
+**/target/
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.eclipse/
+.settings/
+.project
+.classpath
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cursor
+.cursor/
+
+# Scripts (will be copied separately in docker-compose)
+# scripts/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
