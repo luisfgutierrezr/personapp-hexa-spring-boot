@@ -24,7 +24,13 @@ public class TelefonoMapperMongo {
 	}
 
 	private PersonaDocument validateDuenio(@NonNull Person owner) {
-		return owner != null ? personaMapperMongo.fromDomainToAdapter(owner) : new PersonaDocument();
+		// Solo establecer la referencia por ID para evitar referencias circulares
+		if (owner != null && owner.getIdentification() != null) {
+			PersonaDocument personaDocument = new PersonaDocument();
+			personaDocument.setId(owner.getIdentification());
+			return personaDocument;
+		}
+		return new PersonaDocument();
 	}
 
 	public Phone fromAdapterToDomain(TelefonoDocument telefonoDocument) {

@@ -24,7 +24,13 @@ public class TelefonoMapperMaria {
 	}
 
 	private PersonaEntity validateDuenio(@NonNull Person owner) {
-		return owner != null ? personaMapperMaria.fromDomainToAdapter(owner) : new PersonaEntity();
+		// Solo establecer la referencia por ID para evitar referencias circulares
+		if (owner != null && owner.getIdentification() != null) {
+			PersonaEntity personaEntity = new PersonaEntity();
+			personaEntity.setCc(owner.getIdentification());
+			return personaEntity;
+		}
+		return new PersonaEntity();
 	}
 
 	public Phone fromAdapterToDomain(TelefonoEntity telefonoEntity) {
