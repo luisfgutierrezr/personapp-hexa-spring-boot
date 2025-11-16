@@ -58,7 +58,9 @@ public class PersonaMapperRest {
 			request.getFirstName(),
 			request.getLastName(),
 			gender,
-			age
+			age,
+			null,
+			null
 		);
 	}
 	
